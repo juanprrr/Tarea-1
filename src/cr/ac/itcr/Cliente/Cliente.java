@@ -1,3 +1,5 @@
+package cr.ac.itcr.Cliente;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.net.Socket;
@@ -16,9 +18,8 @@ public class Cliente {
 
             out.writeUTF("Cliente a servidor: hola ");
             String mensaje = in.readUTF();
-
             System.out.println(mensaje);
-            socketCliente.close();
+            //socketCliente.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
