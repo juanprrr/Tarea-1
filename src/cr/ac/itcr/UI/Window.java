@@ -19,6 +19,7 @@ public class Window extends JFrame {
     JButton Login = new JButton("Login");
     Cliente cliente;
     String destinatario;
+
     public Window(){
 
         Widgets();
@@ -94,6 +95,4 @@ public class Window extends JFrame {
         add(miNombre);
         add(Login);
     }
-
-
 }

@@ -6,7 +6,13 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.HashMap;
+import java.util.Set;
 
+/**
+ * La clase cliente crea el socket para conectarse al servidor,
+ * se reciben mensajes y se envían mensajes a un usuario en específico
+ * @Author Juan Peña
+ */
 public class Cliente {
     final String localhost = "127.0.0.1";
     int puerto = 14500;
@@ -17,6 +23,14 @@ public class Cliente {
     private DataOutputStream out;
     JList list;
     JTextArea areaMensajes;
+
+    /**
+     *
+     * @param name nombre del cliente
+     * @param list  lista donde se despliegan los clientes conectados
+     * @param areaMensajes espacio de texto donde se despliega el historial de conversación
+     * @throws IOException
+     */
     public Cliente(String name, JList list, JTextArea areaMensajes) throws IOException {
         this.name = name;
         this.list = list;
@@ -40,6 +54,11 @@ public class Cliente {
         thread.start();
     }
 
+    /**
+     * Este método toma la información del remitente y su mensaje,
+     * lo divide para ubicarlo en el hashmap chat
+     * @param message
+     */
     public void processMessage(String message){
         System.out.println("Processing message: " + message );
         String[] components = message.split("%", 2);
@@ -54,21 +73,35 @@ public class Cliente {
             UploadElements();
 
         }else {
+            //Se actualiza el chat de acuerdo con quien deseo hablar,
+            // en la lista de chats se muestra el nombre de quien me escribió o a quien le escribo
             String historial = chat.get(components[0]);
             historial += components[0] +": " + components[1] + "\n";
-
+            list.setSelectedIndex(index(chat.keySet(), components[0]));
             chat.put(components[0],historial );
             areaMensajes.setText("");
             areaMensajes.setText(historial);
         }
 
     }
+
+    /**
+     * Este método se encarga se conactenar los mensajes en una
+     * conversación del chat cuando se envían
+     * @param name nombre del usuario
+     * @param message info enviada
+     * @throws IOException
+     */
     public void sendMessage(String name,String message) throws IOException {
         String historial = chat.get(name) + "Yo: " + message + "\n";
         chat.put(name, historial);
         out.writeUTF(name + "%" + message);
         out.flush();
     }
+
+    /**
+     * Este método toma los nombres de los usuarios y sibirlos a la lista de conectados
+     */
     public void UploadElements(){
         DefaultListModel listModel = new DefaultListModel();
         for (String key: chat.keySet()){
@@ -82,4 +115,21 @@ public class Cliente {
         return chat;
     }
 
+    /**
+     * Este método busca el indice en la lista de conectados
+     * del usuario con que se chatea para desplegar su conversación en el espacio del historial
+     * @param keys son las llaves asociadas a los usuarios del chat
+     * @param name nombre del remiente
+     * @return
+     */
+    public int index(Set<String> keys, String name){
+        int cont = 0;
+        for(String key: keys){
+            if (key.equals(name)){
+                return cont;
+            }
+            cont ++;
+        }
+        return 0;
+    }
 }
