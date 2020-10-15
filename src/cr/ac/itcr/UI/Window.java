@@ -20,7 +20,7 @@ public class Window extends JFrame {
     Cliente cliente;
     String destinatario;
 
-    public Window(){
+    public Window() throws IOException {
 
         Widgets();
 
@@ -30,6 +30,7 @@ public class Window extends JFrame {
         setVisible(true);
         setResizable(false);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
+        Servidor servidor = new Servidor();
     }
     public void Widgets(){
 
