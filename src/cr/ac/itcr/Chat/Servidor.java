@@ -1,8 +1,11 @@
 package cr.ac.itcr.Chat;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
-import java.io.EOFException;
 import java.io.IOException;
+import java.net.BindException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashMap;
@@ -13,7 +16,7 @@ import java.util.Set;
  * reciben las solicitudes de los usuarios,
  */
 public class Servidor {
-
+    private static Logger log = LoggerFactory.getLogger(Servidor.class);
     static final int puerto = 14500;
     private boolean flag = true;
     private HashMap<String, ClientHandler> usuarios = new HashMap<>();
@@ -25,11 +28,16 @@ public class Servidor {
      */
     public Servidor() throws IOException {
 
-        ServerSocket ss = new ServerSocket(puerto);
-        System.out.println("Escuchando...");
-        while (flag){
-            Socket socket =  ss.accept(); //socket del cliente
-            processConnection(socket);
+        try{
+            ServerSocket ss = new ServerSocket(puerto);
+            log.debug("Listening connections...");
+            while (flag){
+                Socket socket =  ss.accept(); //socket del cliente
+                processConnection(socket);
+            }
+        } catch (IOException ex) {
+            log.info("Server in use...");
+            log.warn(ex.getMessage(), ex);
         }
     }
 
@@ -63,7 +71,7 @@ public class Servidor {
         ClientHandler handler = usuarios.get(components[0]);
         if (handler != null){
             handler.sendMessage(name + "%" + components[1]);
-        }
+        } else throw new ArrayIndexOutOfBoundsException();
 
     }
 
@@ -86,15 +94,15 @@ public class Servidor {
      * Este metodo define cómo se van a separar los keys asociados a cada usuario
      * mediante su concatenación con el identificador
      * @param keys usuarios en línea
-     * @return
+     * @return el set de entradas que recibe el
      */
     public String unifyKeys(Set<String> keys){
-        String set = "";
+        StringBuilder set = new StringBuilder();
         for (String key: keys){
-            set += key + ";";
+            set.append(key).append(";");
         }
-        set = set.substring(0, set.length()-1);
-        return set;
+        set = new StringBuilder(set.substring(0, set.length() - 1));
+        return set.toString();
     }
 
 }

@@ -1,5 +1,8 @@
 package cr.ac.itcr.UI;
 import cr.ac.itcr.Chat.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -19,6 +22,7 @@ public class Window extends JFrame {
     JButton Login = new JButton("Login");
     Cliente cliente;
     String destinatario;
+    private static Logger log = LoggerFactory.getLogger(Window.class);
 
     public Window() throws IOException {
 
@@ -30,7 +34,18 @@ public class Window extends JFrame {
         setVisible(true);
         setResizable(false);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
-        Servidor servidor = new Servidor();
+        int cont = 1;
+
+        while (cont == 1){
+            try{
+                Servidor servidor = new Servidor();
+                cont ++;
+            } catch (IOException e){
+                log.info("Servidor ya está ocupado");
+                log.warn(e.getMessage(), e);
+            }
+        }
+
     }
     public void Widgets(){
 
@@ -59,12 +74,11 @@ public class Window extends JFrame {
             String myMessage = textoChat.getText();
             if (myMessage != ""){
                 try {
-
                     cliente.sendMessage(destinatario, myMessage);
                     areaMensajes.setText("");
                     areaMensajes.setText(cliente.getChat().get(destinatario));
                 } catch (IOException ioException) {
-                    ioException.printStackTrace();
+                    log.info(ioException.getMessage(), ioException);
                 }
             }
         });
@@ -75,9 +89,10 @@ public class Window extends JFrame {
                 try {
                     cliente = new Cliente(nombre, listaChats, areaMensajes);
                 } catch (IOException io) {
-                    io.printStackTrace();
+                    log.warn(io.getMessage(), io);
+
                 }
-            }
+            } else log.info("No ingreso nombre"); log.error("NO puede entrar sin registrarse");
         });
 
         listaChats.addListSelectionListener(e -> {

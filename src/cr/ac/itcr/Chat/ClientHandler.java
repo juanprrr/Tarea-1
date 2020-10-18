@@ -1,5 +1,9 @@
 package cr.ac.itcr.Chat;
 
+import cr.ac.itcr.UI.Main;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.EOFException;
@@ -19,7 +23,7 @@ public class ClientHandler {
     DataInputStream in;
     String name;
     Servidor server;
-
+    private static Logger log = LoggerFactory.getLogger(ClientHandler.class);
     /**
      * Este método constructor de la clase sostiene la conexión mediante el thread
      * donde se procesa el mensaje para saber a donde será enviado
@@ -41,16 +45,9 @@ public class ClientHandler {
                 try {
                     String message = in.readUTF();
                     server.processMessage(name, message);
-                } catch (EOFException e){
-                    System.out.println("No hay mensaje");
-                } catch (IOException e) {
-
-                    try {
-                        socket.close();
-                    } catch (IOException ioException) {
-                        ioException.printStackTrace();
-                    }
-                    e.printStackTrace();
+                } catch (IOException e){
+                    log.debug("Server Reseted");
+                    log.warn(e.getMessage(), e);
                 }
             }
         });
@@ -64,8 +61,13 @@ public class ClientHandler {
      */
     public void sendMessage(String message) throws IOException {
 
-        out.writeUTF(message);
-        out.flush();
+        try{
+            out.writeUTF(message);
+            out.flush();
+        }catch (IOException e){
+            throw new IOException(e);
+        }
+
     }
 
 }

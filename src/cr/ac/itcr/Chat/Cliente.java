@@ -1,5 +1,8 @@
 package cr.ac.itcr.Chat;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.swing.*;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -23,6 +26,7 @@ public class Cliente {
     private DataOutputStream out;
     JList list;
     JTextArea areaMensajes;
+    private static Logger log = LoggerFactory.getLogger(Cliente.class);
 
     /**
      *
@@ -97,6 +101,13 @@ public class Cliente {
         chat.put(name, historial);
         out.writeUTF(name + "%" + message);
         out.flush();
+        try{
+            out.writeUTF(name + "%" + message);
+            out.flush();
+        }catch (IOException e){
+            log.info("Ocurrió un error en la escritura del mensaje a enviar");
+            throw new IOException(e);
+        }
     }
 
     /**
